@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "ru.je_dog.draw_animation"
-        minSdk = 30
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
