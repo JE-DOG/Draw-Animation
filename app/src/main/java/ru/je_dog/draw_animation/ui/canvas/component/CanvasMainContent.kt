@@ -56,8 +56,16 @@ fun CanvasMainContent(
                 )
                 val frame = state.frames[state.currentFrameIndex]
                 val paths = DrawHelper.generatePaths(frame.draws)
-                val previousFrame = state.frames.getOrNull(state.currentFrameIndex - 1)
-                val previousFramePaths = DrawHelper.generatePaths(previousFrame?.draws ?: emptyList())
+                val previousFrame = if (state is CanvasState.Drawing) {
+                    state.frames.getOrNull(state.currentFrameIndex - 1)
+                } else {
+                    null
+                }
+                val previousFramePaths = if (state is CanvasState.Drawing) {
+                    DrawHelper.generatePaths(previousFrame?.draws ?: emptyList())
+                } else {
+                    null
+                }
 
                 onDrawWithContent {
                     drawContent()
@@ -70,7 +78,7 @@ fun CanvasMainContent(
                         )
                     }
 
-                    previousFramePaths.fastForEach {  path ->
+                    previousFramePaths?.fastForEach { path ->
                         drawPath(
                             path = path,
                             style = stroke,

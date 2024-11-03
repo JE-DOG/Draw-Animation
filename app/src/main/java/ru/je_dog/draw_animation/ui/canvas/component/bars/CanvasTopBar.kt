@@ -120,7 +120,10 @@ private fun AnimationManage(
     Row(
         modifier = modifier,
     ) {
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val action = CanvasAction.Animation.Stop
+            onAction(action)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_pause),
                 tint = MaterialTheme.colorScheme.outline,
@@ -128,7 +131,10 @@ private fun AnimationManage(
             )
         }
 
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val action = CanvasAction.Animation.Start
+            onAction(action)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_play),
                 tint = MaterialTheme.colorScheme.outline,

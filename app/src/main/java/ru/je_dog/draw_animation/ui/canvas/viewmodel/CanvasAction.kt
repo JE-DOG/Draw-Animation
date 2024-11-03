@@ -4,6 +4,13 @@ import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 
 sealed interface CanvasAction {
 
+    sealed interface Animation : CanvasAction {
+
+        object Start : Animation
+
+        object Stop : Animation
+    }
+
     sealed interface FramesManage : CanvasAction {
 
         object CreateNewFrame : FramesManage
