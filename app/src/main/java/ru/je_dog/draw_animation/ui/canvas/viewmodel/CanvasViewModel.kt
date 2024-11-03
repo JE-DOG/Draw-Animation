@@ -7,15 +7,18 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.je_dog.draw_animation.core.ext.collection.popOrNull
 import ru.je_dog.draw_animation.ui.canvas.model.Draw
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
+import java.util.Stack
 
 class CanvasViewModel : ViewModel() {
 
     val state: MutableStateFlow<CanvasState> = MutableStateFlow(CanvasState.Drawing())
 
     private val drawPointsQueue = MutableSharedFlow<DrawPoint>()
+    private val savedFramesDraws = hashMapOf<Int, Stack<Draw>>()
 
     init {
         collectDrawPoints()
@@ -25,18 +28,67 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             is CanvasAction.Drawing -> onDrawingAction(action)
             is CanvasAction.FramesManage -> onFramesManageAction(action)
+            is CanvasAction.DrawManage -> onDrawManageAction(action)
+        }
+    }
+
+    private fun onDrawManageAction(action: CanvasAction.DrawManage) {
+        when(action) {
+            CanvasAction.DrawManage.Redo -> onDrawRedo()
+            CanvasAction.DrawManage.Undo -> onDrawUndo()
+        }
+    }
+
+    private fun onDrawUndo() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val frameIndex = currentState.currentFrameIndex
+        val drawStack = savedFramesDraws.getOrPut(frameIndex) { Stack() }
+        val newFrames = currentState.frames.toMutableList()
+        val currentFrame = newFrames.getOrNull(frameIndex) ?: return
+        val newDraws = currentFrame.draws.toMutableList()
+        val newFrame = currentFrame.copy(draws = newDraws)
+
+        val lastDraw = newDraws.removeLastOrNull() ?: return
+        drawStack.add(lastDraw)
+        newFrames[frameIndex] = newFrame
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+            )
+        }
+    }
+
+    private fun onDrawRedo() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val frameIndex = currentState.currentFrameIndex
+        val drawStack = savedFramesDraws[frameIndex] ?: return
+        val newFrames = currentState.frames.toMutableList()
+        val currentFrame = newFrames.getOrNull(frameIndex) ?: return
+        val newDraws = currentFrame.draws.toMutableList()
+        val newFrame = currentFrame.copy(draws = newDraws)
+
+        val returnedDraw = drawStack.popOrNull() ?: return
+        newDraws.add(returnedDraw)
+        newFrames[frameIndex] = newFrame
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+            )
         }
     }
 
     private fun onDrawingAction(action: CanvasAction.Drawing) {
         when(action) {
             CanvasAction.Drawing.Ended -> onDrawingEnded()
+            CanvasAction.Drawing.Started -> onDrawingStarted()
             is CanvasAction.Drawing.NewPoint -> onDrawingNewPoint(action.point)
         }
     }
 
     // TODO: Decompose it
-    private fun onDrawingEnded() {
+    private fun onDrawingStarted() {
         val currentState = state.value as? CanvasState.Drawing ?: return
         val newFrames = currentState.frames.toMutableList()
         val currentFrame = newFrames.getOrNull(currentState.currentFrameIndex) ?: return
@@ -46,12 +98,18 @@ class CanvasViewModel : ViewModel() {
         )
         val newDraws = currentFrame.draws + newDraw
         newFrames[currentState.currentFrameIndex] = currentFrame.copy(draws = newDraws)
+        savedFramesDraws.remove(currentState.currentFrameIndex)
 
         state.update {
             currentState.copy(
                 frames = newFrames,
             )
         }
+    }
+
+    private fun onDrawingEnded() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        savedFramesDraws.remove(currentState.currentFrameIndex)
     }
 
     private fun onDrawingNewPoint(newPoint: DrawPoint) {
@@ -127,6 +185,8 @@ class CanvasViewModel : ViewModel() {
                 newCurrentFrameIndex = currentState.currentFrameIndex + 1
             }
         }
+
+        savedFramesDraws.remove(currentState.currentFrameIndex)
 
         state.update {
             currentState.copy(

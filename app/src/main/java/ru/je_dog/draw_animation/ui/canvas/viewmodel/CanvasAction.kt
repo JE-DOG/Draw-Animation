@@ -17,6 +17,13 @@ sealed interface CanvasAction {
         class SetFrame(val frameIndex: Int) : FramesManage
     }
 
+    sealed interface DrawManage : CanvasAction {
+
+        object Undo : DrawManage
+
+        object Redo : DrawManage
+    }
+
     sealed interface Drawing : CanvasAction {
 
         data class NewPoint(
@@ -24,5 +31,7 @@ sealed interface CanvasAction {
         ) : Drawing
 
         object Ended : Drawing
+
+        object Started : Drawing
     }
 }
