@@ -10,12 +10,16 @@ private val DarkColorScheme = darkColorScheme(
     primary = AppColor.Green,
     outline = AppColor.White,
     primaryContainer = AppColor.GrayTransparent16,
+    background = AppColor.Black,
+    onBackground = AppColor.White,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = AppColor.Green,
-    outline = AppColor.White,
+    outline = AppColor.Black,
     primaryContainer = AppColor.GrayTransparent16,
+    background = AppColor.White,
+    onBackground = AppColor.Black,
 )
 
 @Composable
