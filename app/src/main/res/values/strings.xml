@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Draw Animation</string>
+
+    <string name="canvas_dialog_frame">Frame %d</string>
 </resources>
