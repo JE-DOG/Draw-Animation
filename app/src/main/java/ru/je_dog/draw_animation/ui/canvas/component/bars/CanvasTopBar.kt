@@ -45,7 +45,10 @@ private fun DrawChangeManage(
     Row(
         modifier = modifier,
     ) {
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val action = CanvasAction.DrawManage.Undo
+            onAction(action)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_undo),
                 tint = MaterialTheme.colorScheme.outline,
@@ -53,7 +56,10 @@ private fun DrawChangeManage(
             )
         }
 
-        IconButton(onClick = { /*TODO*/ }) {
+        IconButton(onClick = {
+            val action = CanvasAction.DrawManage.Redo
+            onAction(action)
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_redo),
                 tint = MaterialTheme.colorScheme.outline,

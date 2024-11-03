@@ -35,6 +35,10 @@ fun CanvasMainContent(
                 if (state !is CanvasState.Drawing) return@pointerInput
 
                 detectDragGestures(
+                    onDragStart = {
+                        val action = CanvasAction.Drawing.Started
+                        onAction(action)
+                    },
                     onDragEnd = {
                         val action = CanvasAction.Drawing.Ended
                         onAction(action)
