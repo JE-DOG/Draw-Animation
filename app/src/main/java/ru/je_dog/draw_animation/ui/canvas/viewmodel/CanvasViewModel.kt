@@ -3,6 +3,8 @@ package ru.je_dog.draw_animation.ui.canvas.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -13,12 +15,15 @@ import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
 import java.util.Stack
 
+private const val ANIMATION_NEXT_FRAME_DELAY = 150L
+
 class CanvasViewModel : ViewModel() {
 
     val state: MutableStateFlow<CanvasState> = MutableStateFlow(CanvasState.Drawing())
 
     private val drawPointsQueue = MutableSharedFlow<DrawPoint>()
     private val savedFramesDraws = hashMapOf<Int, Stack<Draw>>()
+    private var animationJob: Job? = null
 
     init {
         collectDrawPoints()
@@ -29,6 +34,49 @@ class CanvasViewModel : ViewModel() {
             is CanvasAction.Drawing -> onDrawingAction(action)
             is CanvasAction.FramesManage -> onFramesManageAction(action)
             is CanvasAction.DrawManage -> onDrawManageAction(action)
+            is CanvasAction.Animation -> onAnimationAction(action)
+        }
+    }
+
+    private fun onAnimationAction(action: CanvasAction.Animation) {
+        when(action) {
+            CanvasAction.Animation.Start -> onStartAnimation()
+            CanvasAction.Animation.Stop -> onStopAnimation()
+        }
+    }
+
+    private fun onStopAnimation() {
+        val frames = state.value.frames
+        val drawingState = CanvasState.Drawing(
+            frames,
+            frames.lastIndex,
+        )
+
+        animationJob?.cancel()
+        state.update {
+            drawingState
+        }
+    }
+
+    private fun onStartAnimation() {
+        animationJob?.cancel()
+        animationJob = viewModelScope.launch {
+            val currentState = state.value
+            val showAnimationState = CanvasState.ShowAnimation(
+                frames = currentState.frames,
+                currentFrameIndex = 0,
+            )
+
+            while (true) {
+                for (i in currentState.frames.indices) {
+                    state.update {
+                        showAnimationState.copy(
+                            currentFrameIndex = i,
+                        )
+                    }
+                    delay(ANIMATION_NEXT_FRAME_DELAY)
+                }
+            }
         }
     }
 
@@ -182,7 +230,7 @@ class CanvasViewModel : ViewModel() {
                 val newFrame = Frame()
                 add(newFrame)
             } else {
-                newCurrentFrameIndex = currentState.currentFrameIndex + 1
+                newCurrentFrameIndex = currentState.currentFrameIndex - 1
             }
         }
 
