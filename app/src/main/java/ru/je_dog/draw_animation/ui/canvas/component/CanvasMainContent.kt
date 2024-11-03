@@ -20,6 +20,8 @@ import ru.je_dog.draw_animation.ui.canvas.util.DrawHelper
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasAction
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasState
 
+private const val PREVIOUS_DRAW_ALPHA = 0.3F
+
 @Composable
 fun CanvasMainContent(
     state: CanvasState,
@@ -50,6 +52,8 @@ fun CanvasMainContent(
                 )
                 val frame = state.frames[state.currentFrameIndex]
                 val paths = DrawHelper.generatePaths(frame.draws)
+                val previousFrame = state.frames.getOrNull(state.currentFrameIndex - 1)
+                val previousFramePaths = DrawHelper.generatePaths(previousFrame?.draws ?: emptyList())
 
                 onDrawWithContent {
                     drawContent()
@@ -59,6 +63,15 @@ fun CanvasMainContent(
                             path = path,
                             style = stroke,
                             color = Color.Red,
+                        )
+                    }
+
+                    previousFramePaths.fastForEach {  path ->
+                        drawPath(
+                            path = path,
+                            style = stroke,
+                            color = Color.Red,
+                            alpha = PREVIOUS_DRAW_ALPHA,
                         )
                     }
                 }

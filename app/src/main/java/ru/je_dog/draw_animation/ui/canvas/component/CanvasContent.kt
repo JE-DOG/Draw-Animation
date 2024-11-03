@@ -2,6 +2,7 @@ package ru.je_dog.draw_animation.ui.canvas.component
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,7 +25,12 @@ fun CanvasContent(
     Scaffold(
         modifier = modifier,
         topBar = {
-            CanvasTopBar()
+            CanvasTopBar(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .fillMaxWidth(),
+                onAction = onAction,
+            )
         },
         bottomBar = {
             CanvasBottomBar()

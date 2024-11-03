@@ -18,5 +18,6 @@ sealed class CanvasState {
         override val frames: List<Frame> = listOf(Frame()),
         override val currentFrameIndex: Int = 0,
         val property: DrawProperty = DrawProperty.Line(),
+        val showFrames: Boolean = false,
     ) : CanvasState()
 }
