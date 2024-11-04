@@ -15,6 +15,7 @@ import ru.je_dog.draw_animation.ui.canvas.model.Draw
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
+import ru.je_dog.draw_animation.ui.canvas.util.FrameHelper
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 import java.util.Stack
 
@@ -27,6 +28,7 @@ class CanvasViewModel : ViewModel() {
     private val drawPointsQueue = MutableSharedFlow<DrawPoint>()
     private val savedFramesDraws = hashMapOf<Int, Stack<Draw>>()
     private var animationJob: Job? = null
+    private var animationSpeed = ANIMATION_NEXT_FRAME_DELAY
 
     init {
         collectDrawPoints()
@@ -54,6 +56,22 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             is CanvasAction.DrawPropertyManage.SetColor -> onSetDrawPropertyColor(action.color)
             is CanvasAction.DrawPropertyManage.SetDrawProperty -> onSetDrawProperty(action.drawProperty)
+            is CanvasAction.DrawPropertyManage.SetStrokeWidth -> onSetStrokeWidth(action.width)
+        }
+    }
+
+    private fun onSetStrokeWidth(width: Float) {
+        val currentState = state.value
+        if (currentState !is CanvasState.Drawing) return
+        val newProperty = currentState.property.copyProperty(
+            width = width,
+        )
+
+        state.update {
+            currentState.copy(
+                property = newProperty,
+                dialogType = null,
+            )
         }
     }
 
@@ -68,12 +86,19 @@ class CanvasViewModel : ViewModel() {
     }
 
     private fun onSetDrawProperty(drawProperty: DrawProperty) {
-        state.update { currentState ->
-            if (currentState !is CanvasState.Drawing) return@update currentState
+        val currentState = state.value
+        if (currentState !is CanvasState.Drawing) return
 
-            currentState.copy(
-                property = drawProperty,
-            )
+        if (drawProperty::class == currentState.property::class) {
+            val dialogType = DialogType.StrokeWidth
+            val action = CanvasAction.Dialog.ShowDialog(dialogType)
+            action(action)
+        } else {
+            state.update {
+                currentState.copy(
+                    property = drawProperty,
+                )
+            }
         }
     }
 
@@ -97,6 +122,18 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             CanvasAction.Animation.Start -> onStartAnimation()
             CanvasAction.Animation.Stop -> onStopAnimation()
+            is CanvasAction.Animation.SetAnimationSpeed -> onSetAnimationSpeed(action.speed)
+        }
+    }
+
+    private fun onSetAnimationSpeed(speed: Long) {
+        animationSpeed = speed
+        val currentState = state.value as? CanvasState.Drawing ?: return
+
+        state.update {
+            currentState.copy(
+                dialogType = null,
+            )
         }
     }
 
@@ -129,7 +166,7 @@ class CanvasViewModel : ViewModel() {
                             currentFrameIndex = i,
                         )
                     }
-                    delay(ANIMATION_NEXT_FRAME_DELAY)
+                    delay(animationSpeed)
                 }
             }
         }
@@ -225,7 +262,57 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             CanvasAction.FramesManage.CreateNewFrame -> onCreateNewFrame()
             CanvasAction.FramesManage.DeleteFrame -> onDeleteFrame()
+            CanvasAction.FramesManage.DeleteAllFrames -> onDeleteAllFrames()
             is CanvasAction.FramesManage.SetFrame -> onSetFrame(action.frameIndex)
+            CanvasAction.FramesManage.CreateNewFrameByCopy -> onCreateNewFrameByCopy()
+            is CanvasAction.FramesManage.CreateRandomFrames -> onCreateNewRandomFrames(action.count)
+        }
+    }
+
+    private fun onCreateNewRandomFrames(count: Int) {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val newFrames = currentState.frames.toMutableList().apply {
+            repeat(count) {
+                val newFrame = FrameHelper.createRandomFrame()
+                add(newFrame)
+            }
+        }
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+                currentFrameIndex = newFrames.lastIndex,
+                dialogType = null,
+            )
+        }
+    }
+
+    private fun onCreateNewFrameByCopy() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val newFrames = currentState.frames.toMutableList().apply {
+            val newFrame = lastOrNull() ?: Frame()
+            add(newFrame)
+        }
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+                currentFrameIndex = newFrames.lastIndex,
+                dialogType = null,
+            )
+        }
+    }
+
+    private fun onDeleteAllFrames() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val newFrames = listOf(Frame())
+        savedFramesDraws.clear()
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+                currentFrameIndex = 0,
+            )
         }
     }
 

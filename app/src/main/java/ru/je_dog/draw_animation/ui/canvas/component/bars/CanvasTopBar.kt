@@ -1,5 +1,7 @@
 package ru.je_dog.draw_animation.ui.canvas.component.bars
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -70,6 +72,7 @@ private fun DrawChangeManage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LayersManage(
     modifier: Modifier = Modifier,
@@ -78,11 +81,20 @@ private fun LayersManage(
     Row(
         modifier = modifier,
     ) {
-        IconButton(onClick = {
-            val action = CanvasAction.FramesManage.DeleteFrame
-            onAction(action)
-        }) {
+        IconButton(onClick = {}) {
             Icon(
+                modifier = Modifier
+                    .combinedClickable(
+                        true,
+                        onClick = {
+                            val action = CanvasAction.FramesManage.DeleteFrame
+                            onAction(action)
+                        },
+                        onLongClick = {
+                            val action = CanvasAction.FramesManage.DeleteAllFrames
+                            onAction(action)
+                        }
+                    ),
                 painter = painterResource(id = R.drawable.ic_bin),
                 tint = MaterialTheme.colorScheme.outline,
                 contentDescription = null,
@@ -90,7 +102,8 @@ private fun LayersManage(
         }
 
         IconButton(onClick = {
-            val action = CanvasAction.FramesManage.CreateNewFrame
+            val dialogType = DialogType.CreateNewFrame
+            val action = CanvasAction.Dialog.ShowDialog(dialogType)
             onAction(action)
         }) {
             Icon(
@@ -101,7 +114,7 @@ private fun LayersManage(
         }
 
         IconButton(onClick = {
-            val dialogType = DialogType.ShowFrames
+            val dialogType = DialogType.Frames
             val action = CanvasAction.Dialog.ShowDialog(dialogType)
             onAction(action)
         }) {
@@ -114,6 +127,7 @@ private fun LayersManage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AnimationManage(
     modifier: Modifier = Modifier,
@@ -133,11 +147,23 @@ private fun AnimationManage(
             )
         }
 
-        IconButton(onClick = {
-            val action = CanvasAction.Animation.Start
-            onAction(action)
-        }) {
+        IconButton(
+            onClick = {}
+        ) {
             Icon(
+                modifier = Modifier
+                    .combinedClickable(
+                        true,
+                        onLongClick = {
+                            val dialogType = DialogType.AnimationSpeed
+                            val action = CanvasAction.Dialog.ShowDialog(dialogType)
+                            onAction(action)
+                        },
+                        onClick = {
+                            val action = CanvasAction.Animation.Start
+                            onAction(action)
+                        }
+                    ),
                 painter = painterResource(id = R.drawable.ic_play),
                 tint = MaterialTheme.colorScheme.outline,
                 contentDescription = null,

@@ -37,6 +37,30 @@ fun CanvasMainContent(
         Canvas(
             modifier = Modifier
                 .matchParentSize()
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen),
+        ) {
+            val previousFrame = if (state is CanvasState.Drawing) {
+                state.frames.getOrNull(state.currentFrameIndex - 1) ?: return@Canvas
+            } else {
+                null
+            }
+            val previousFrameDrawPaths = if (state is CanvasState.Drawing) {
+                DrawHelper.generateDrawPathsForPreviousFrame(previousFrame?.draws ?: return@Canvas)
+            } else {
+                null
+            }
+
+            previousFrameDrawPaths?.fastForEach { drawPath ->
+                drawPath.property.draw(
+                    path = drawPath.path,
+                    scope = this,
+                )
+            }
+        }
+
+        Canvas(
+            modifier = Modifier
+                .matchParentSize()
                 .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                 .pointerInput(Unit) {
                     if (state !is CanvasState.Drawing) return@pointerInput
@@ -60,23 +84,6 @@ fun CanvasMainContent(
         ) {
             val frame = state.frames[state.currentFrameIndex]
             val drawPaths = DrawHelper.generateDrawPaths(frame.draws)
-            val previousFrame = if (state is CanvasState.Drawing) {
-                state.frames.getOrNull(state.currentFrameIndex - 1)
-            } else {
-                null
-            }
-            val previousFrameDrawPaths = if (state is CanvasState.Drawing) {
-                DrawHelper.generateDrawPathsForPreviousFrame(previousFrame?.draws ?: emptyList())
-            } else {
-                null
-            }
-
-            previousFrameDrawPaths?.fastForEach { drawPath ->
-                drawPath.property.draw(
-                    path = drawPath.path,
-                    scope = this,
-                )
-            }
 
             drawPaths.fastForEach { drawPath ->
                 drawPath.property.draw(

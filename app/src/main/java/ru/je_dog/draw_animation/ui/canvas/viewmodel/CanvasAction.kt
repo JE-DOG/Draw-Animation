@@ -20,6 +20,10 @@ sealed interface CanvasAction {
             val drawProperty: DrawProperty,
         ) : DrawPropertyManage
 
+        data class SetStrokeWidth(
+            val width: Float,
+        ) : DrawPropertyManage
+
         data class SetColor(
             val color: Color,
         ) : DrawPropertyManage
@@ -30,13 +34,21 @@ sealed interface CanvasAction {
         object Start : Animation
 
         object Stop : Animation
+
+        data class SetAnimationSpeed(val speed: Long) : Animation
     }
 
     sealed interface FramesManage : CanvasAction {
 
+        data class CreateRandomFrames(val count: Int) : FramesManage
+
+        object CreateNewFrameByCopy : FramesManage
+
         object CreateNewFrame : FramesManage
 
         object DeleteFrame : FramesManage
+
+        object DeleteAllFrames : FramesManage
 
         class SetFrame(val frameIndex: Int) : FramesManage
     }
