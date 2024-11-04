@@ -5,7 +5,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import ru.je_dog.draw_animation.ui.canvas.component.CanvasContent
-import ru.je_dog.draw_animation.ui.canvas.component.dialog.SetFrameDialog
+import ru.je_dog.draw_animation.ui.canvas.component.dialog.CanvasDialog
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasState
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasViewModel
 
@@ -22,7 +22,7 @@ fun CanvasScreen(
         onAction = viewModel::action,
     )
 
-    SetFrameDialog(
+    CanvasDialog(
         state = state as? CanvasState.Drawing ?: return,
         onAction = viewModel::action,
     )

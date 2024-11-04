@@ -33,12 +33,18 @@ sealed class DrawProperty {
 
         abstract val alpha: Float
 
-        abstract fun copy(alpha: Float): Draw
+        abstract fun copyProperty(alpha: Float = this.alpha): Draw
 
         sealed class Line : Draw() {
 
             abstract val color: Color
             abstract val width: Float
+
+            abstract fun copyProperty(
+                alpha: Float = this.alpha,
+                color: Color = this.color,
+                width: Float = this.width,
+            ): Draw
 
             data class Pencil(
                 override val color: Color = Color.Red,
@@ -57,10 +63,21 @@ sealed class DrawProperty {
                     )
                 }
 
-                override fun copy(alpha: Float): Pencil {
-                    return this.copy(
+                override fun copyProperty(alpha: Float): Pencil {
+                    return copy(
+                        alpha = alpha,
+                    )
+                }
+
+                override fun copyProperty(
+                    alpha: Float,
+                    color: Color,
+                    width: Float,
+                ): Draw {
+                    return copy(
                         alpha = alpha,
                         color = color,
+                        width = width,
                     )
                 }
             }
@@ -82,10 +99,22 @@ sealed class DrawProperty {
                     )
                 }
 
-                override fun copy(alpha: Float): Brush {
+                override fun copyProperty(alpha: Float): Brush {
                     return this.copy(
                         alpha = alpha,
                         color = color,
+                    )
+                }
+
+                override fun copyProperty(
+                    alpha: Float,
+                    color: Color,
+                    width: Float,
+                ): Draw {
+                    return copy(
+                        alpha = alpha,
+                        color = color,
+                        width = width,
                     )
                 }
             }
