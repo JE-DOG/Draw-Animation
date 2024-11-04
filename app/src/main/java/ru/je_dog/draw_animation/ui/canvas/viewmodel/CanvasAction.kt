@@ -40,6 +40,8 @@ sealed interface CanvasAction {
 
     sealed interface FramesManage : CanvasAction {
 
+        data class CreateRandomFrames(val count: Int) : FramesManage
+
         object CreateNewFrameByCopy : FramesManage
 
         object CreateNewFrame : FramesManage
