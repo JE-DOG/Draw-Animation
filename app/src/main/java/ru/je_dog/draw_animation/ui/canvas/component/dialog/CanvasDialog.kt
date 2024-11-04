@@ -43,6 +43,12 @@ fun CanvasDialog(
                     onAction = onAction,
                 )
             }
+
+            DialogType.CreateNewFrame -> {
+                CreateNewFrameDialogContent(
+                    onAction = onAction,
+                )
+            }
         }
     }
 }

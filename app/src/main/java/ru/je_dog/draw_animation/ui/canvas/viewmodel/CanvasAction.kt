@@ -40,6 +40,8 @@ sealed interface CanvasAction {
 
     sealed interface FramesManage : CanvasAction {
 
+        object CreateNewFrameByCopy : FramesManage
+
         object CreateNewFrame : FramesManage
 
         object DeleteFrame : FramesManage

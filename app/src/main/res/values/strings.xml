@@ -8,4 +8,6 @@
     <string name="canvas_dialog_color_blue_placeholder">Blue</string>
     <string name="canvas_dialog_color_green_placeholder">Green</string>
     <string name="canvas_dialog_animation_speed_confirm_button">Set animation speed</string>
+    <string name="canvas_dialog_create_frame_empty">Create empty frame</string>
+    <string name="canvas_dialog_create_frame_copy">Create frame by copy current</string>
 </resources>
