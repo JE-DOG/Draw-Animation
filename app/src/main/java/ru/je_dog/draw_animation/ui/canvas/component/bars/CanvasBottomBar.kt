@@ -1,8 +1,12 @@
 package ru.je_dog.draw_animation.ui.canvas.component.bars
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -12,12 +16,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import ru.je_dog.draw_animation.R
 import ru.je_dog.draw_animation.core.compose.preview.DefaultPreview
 import ru.je_dog.draw_animation.shared.theme.DrawAnimationTheme
 import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasAction
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasState
+import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 
 @Composable
 fun CanvasBottomBar(
@@ -72,6 +78,22 @@ fun CanvasBottomBar(
                 tint = color,
             )
         }
+
+        if (drawProperty !is DrawProperty.Draw.Line) return@Row
+        IconButton(onClick = {
+            val dialogType = DialogType.ShowColors
+            val action = CanvasAction.Dialog.ShowDialog(dialogType)
+            onAction(action)
+        }) {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .background(
+                        color = drawProperty.color,
+                        shape = CircleShape,
+                    ),
+            )
+        }
     }
 }
 
@@ -91,12 +113,27 @@ private fun rememberIconColor(isSelected: Boolean): Color {
     }.value
 }
 
+//region Preview
 @Composable
 @DefaultPreview
-private fun CanvasBottomBarPreview() {
+private fun CanvasBottomBarDrawingSelectedPreview() {
     DrawAnimationTheme {
         CanvasBottomBar(
             state = CanvasState.Drawing(),
         )
     }
 }
+
+@Composable
+@DefaultPreview
+private fun CanvasBottomBarDrawingUnselectedPreview() {
+    DrawAnimationTheme {
+        val drawProperty = DrawProperty.Eraser()
+        CanvasBottomBar(
+            state = CanvasState.Drawing(
+                property = drawProperty,
+            ),
+        )
+    }
+}
+//endregion

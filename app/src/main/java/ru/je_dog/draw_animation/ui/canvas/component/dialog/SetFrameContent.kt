@@ -15,42 +15,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import ru.je_dog.draw_animation.R
 import ru.je_dog.draw_animation.core.compose.preview.DefaultPreview
 import ru.je_dog.draw_animation.shared.theme.DrawAnimationTheme
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasAction
-import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasState
 
 @Composable
-fun SetFrameDialog(
-    state: CanvasState.Drawing,
+fun SetFrameDialogContent(
+    frames: List<Frame>,
     modifier: Modifier = Modifier,
     onAction: (CanvasAction) -> Unit = {},
 ) {
-    if (!state.showFrames) return
-
-    Dialog(onDismissRequest = {
-        val action = CanvasAction.FramesManage.HideAllFrames
-        onAction(action)
-    }) {
-        LazyColumn(
-            modifier = modifier
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 10.dp, vertical = 16.dp),
-        ) {
-            frames(
-                frames = state.frames,
-                onClick = { frameIndex ->
-                    val action = CanvasAction.FramesManage.SetFrame(frameIndex)
-                    onAction(action)
-                }
-            )
-        }
+    LazyColumn(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 10.dp, vertical = 16.dp),
+    ) {
+        frames(
+            frames = frames,
+            onClick = { frameIndex ->
+                val action = CanvasAction.FramesManage.SetFrame(frameIndex)
+                onAction(action)
+            }
+        )
     }
 }
+
 
 private fun LazyListScope.frames(
     frames: List<Frame>,
@@ -101,22 +93,16 @@ private fun FrameItemPreview() {
 @DefaultPreview
 private fun FrameItemsPreview() {
     val frames = List(10) { Frame() }
-    val state = CanvasState.Drawing(
-        frames = frames,
-        showFrames = true,
-    )
 
     DrawAnimationTheme {
         Column(
             modifier = Modifier
                 .fillMaxWidth(),
         ) {
-            SetFrameDialog(
-                state = state,
+            SetFrameDialogContent(
+                frames = frames,
             )
         }
     }
 }
 //endregion
-
-

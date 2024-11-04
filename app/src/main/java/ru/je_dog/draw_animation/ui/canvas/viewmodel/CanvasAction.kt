@@ -3,8 +3,16 @@ package ru.je_dog.draw_animation.ui.canvas.viewmodel
 import androidx.compose.ui.graphics.Color
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
+import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 
 sealed interface CanvasAction {
+
+    sealed interface Dialog : CanvasAction {
+
+        data class ShowDialog(val dialogType: DialogType) : Dialog
+
+        object HideDialog : Dialog
+    }
 
     sealed interface DrawPropertyManage : CanvasAction {
 
@@ -29,10 +37,6 @@ sealed interface CanvasAction {
         object CreateNewFrame : FramesManage
 
         object DeleteFrame : FramesManage
-
-        object ShowAllFrames : FramesManage
-
-        object HideAllFrames : FramesManage
 
         class SetFrame(val frameIndex: Int) : FramesManage
     }

@@ -37,7 +37,7 @@ object DrawHelper {
     private fun generateDrawPathForPreviousFrame(draw: Draw): DrawPath = with(draw) {
         val path = Path()
         val newProperty = if (property is DrawProperty.Draw) {
-            property.copy(
+            property.copyProperty(
                 alpha = PREVIOUS_DRAW_ALPHA,
             )
         } else {

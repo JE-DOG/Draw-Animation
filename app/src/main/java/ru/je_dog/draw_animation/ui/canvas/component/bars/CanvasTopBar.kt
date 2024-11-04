@@ -13,6 +13,7 @@ import ru.je_dog.draw_animation.R
 import ru.je_dog.draw_animation.core.compose.preview.DefaultPreview
 import ru.je_dog.draw_animation.shared.theme.DrawAnimationTheme
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasAction
+import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 
 @Composable
 fun CanvasTopBar(
@@ -100,7 +101,8 @@ private fun LayersManage(
         }
 
         IconButton(onClick = {
-            val action = CanvasAction.FramesManage.ShowAllFrames
+            val dialogType = DialogType.ShowFrames
+            val action = CanvasAction.Dialog.ShowDialog(dialogType)
             onAction(action)
         }) {
             Icon(
