@@ -1,5 +1,6 @@
 package ru.je_dog.draw_animation.ui.canvas.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,9 @@ import kotlinx.coroutines.launch
 import ru.je_dog.draw_animation.core.ext.collection.popOrNull
 import ru.je_dog.draw_animation.ui.canvas.model.Draw
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
+import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
+import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 import java.util.Stack
 
 private const val ANIMATION_NEXT_FRAME_DELAY = 150L
@@ -35,6 +38,58 @@ class CanvasViewModel : ViewModel() {
             is CanvasAction.FramesManage -> onFramesManageAction(action)
             is CanvasAction.DrawManage -> onDrawManageAction(action)
             is CanvasAction.Animation -> onAnimationAction(action)
+            is CanvasAction.DrawPropertyManage -> onDrawPropertyManageAction(action)
+            is CanvasAction.Dialog -> onDialogAction(action)
+        }
+    }
+
+    private fun onDialogAction(action: CanvasAction.Dialog) {
+        when(action) {
+            is CanvasAction.Dialog.ShowDialog -> onShowDialog(action.dialogType)
+            CanvasAction.Dialog.HideDialog -> onHideDialog()
+        }
+    }
+
+    private fun onDrawPropertyManageAction(action: CanvasAction.DrawPropertyManage) {
+        when(action) {
+            is CanvasAction.DrawPropertyManage.SetColor -> onSetDrawPropertyColor(action.color)
+            is CanvasAction.DrawPropertyManage.SetDrawProperty -> onSetDrawProperty(action.drawProperty)
+        }
+    }
+
+    private fun onShowDialog(dialogType: DialogType) {
+        state.update { currentState ->
+            if (currentState !is CanvasState.Drawing) return@update currentState
+
+            currentState.copy(
+                dialogType = dialogType,
+            )
+        }
+    }
+
+    private fun onSetDrawProperty(drawProperty: DrawProperty) {
+        state.update { currentState ->
+            if (currentState !is CanvasState.Drawing) return@update currentState
+
+            currentState.copy(
+                property = drawProperty,
+            )
+        }
+    }
+
+    private fun onSetDrawPropertyColor(color: Color) {
+        val currentState = state.value
+        if (currentState !is CanvasState.Drawing) return
+        if (currentState.property !is DrawProperty.Draw.Line) return
+        val newProperty = currentState.property.copyProperty(
+            color = color,
+        )
+
+        state.update {
+            currentState.copy(
+                property = newProperty,
+                dialogType = null,
+            )
         }
     }
 
@@ -170,8 +225,6 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             CanvasAction.FramesManage.CreateNewFrame -> onCreateNewFrame()
             CanvasAction.FramesManage.DeleteFrame -> onDeleteFrame()
-            CanvasAction.FramesManage.ShowAllFrames -> onShowAllFrames()
-            CanvasAction.FramesManage.HideAllFrames -> onHideAllFrames()
             is CanvasAction.FramesManage.SetFrame -> onSetFrame(action.frameIndex)
         }
     }
@@ -181,27 +234,17 @@ class CanvasViewModel : ViewModel() {
         state.update {
             currentState.copy(
                 currentFrameIndex = frameIndex,
-                showFrames = false,
+                dialogType = null,
             )
         }
     }
 
-    private fun onHideAllFrames() {
+    private fun onHideDialog() {
         val currentState = state.value as? CanvasState.Drawing ?: return
 
         state.update {
             currentState.copy(
-                showFrames = false,
-            )
-        }
-    }
-
-    private fun onShowAllFrames() {
-        val currentState = state.value as? CanvasState.Drawing ?: return
-
-        state.update {
-            currentState.copy(
-                showFrames = true,
+                dialogType = null,
             )
         }
     }
