@@ -34,6 +34,8 @@ sealed interface CanvasAction {
         object Start : Animation
 
         object Stop : Animation
+
+        data class SetAnimationSpeed(val speed: Long) : Animation
     }
 
     sealed interface FramesManage : CanvasAction {

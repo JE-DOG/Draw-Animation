@@ -27,6 +27,7 @@ class CanvasViewModel : ViewModel() {
     private val drawPointsQueue = MutableSharedFlow<DrawPoint>()
     private val savedFramesDraws = hashMapOf<Int, Stack<Draw>>()
     private var animationJob: Job? = null
+    private var animationSpeed = ANIMATION_NEXT_FRAME_DELAY
 
     init {
         collectDrawPoints()
@@ -120,6 +121,18 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             CanvasAction.Animation.Start -> onStartAnimation()
             CanvasAction.Animation.Stop -> onStopAnimation()
+            is CanvasAction.Animation.SetAnimationSpeed -> onSetAnimationSpeed(action.speed)
+        }
+    }
+
+    private fun onSetAnimationSpeed(speed: Long) {
+        animationSpeed = speed
+        val currentState = state.value as? CanvasState.Drawing ?: return
+
+        state.update {
+            currentState.copy(
+                dialogType = null,
+            )
         }
     }
 
@@ -152,7 +165,7 @@ class CanvasViewModel : ViewModel() {
                             currentFrameIndex = i,
                         )
                     }
-                    delay(ANIMATION_NEXT_FRAME_DELAY)
+                    delay(animationSpeed)
                 }
             }
         }

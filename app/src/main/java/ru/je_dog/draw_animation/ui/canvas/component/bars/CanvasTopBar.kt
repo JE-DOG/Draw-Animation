@@ -1,5 +1,7 @@
 package ru.je_dog.draw_animation.ui.canvas.component.bars
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -114,6 +116,7 @@ private fun LayersManage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AnimationManage(
     modifier: Modifier = Modifier,
@@ -133,11 +136,23 @@ private fun AnimationManage(
             )
         }
 
-        IconButton(onClick = {
-            val action = CanvasAction.Animation.Start
-            onAction(action)
-        }) {
+        IconButton(
+            onClick = {}
+        ) {
             Icon(
+                modifier = Modifier
+                    .combinedClickable(
+                        true,
+                        onLongClick = {
+                            val dialogType = DialogType.AnimationSpeed
+                            val action = CanvasAction.Dialog.ShowDialog(dialogType)
+                            onAction(action)
+                        },
+                        onClick = {
+                            val action = CanvasAction.Animation.Start
+                            onAction(action)
+                        }
+                    ),
                 painter = painterResource(id = R.drawable.ic_play),
                 tint = MaterialTheme.colorScheme.outline,
                 contentDescription = null,
