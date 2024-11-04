@@ -9,13 +9,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 
 sealed class DrawProperty {
 
+    abstract val width: Float
+
     abstract fun draw(
         path: Path,
         scope: DrawScope,
     )
 
+    abstract fun copyProperty(
+        width: Float = this.width,
+    ): DrawProperty
+
     data class Eraser(
-        val width: Float = 5f,
+        override val width: Float = 5f,
     ) : DrawProperty() {
         override fun draw(path: Path, scope: DrawScope) = with(scope) {
             drawPath(
@@ -27,18 +33,26 @@ sealed class DrawProperty {
                 blendMode = BlendMode.Clear,
             )
         }
+
+        override fun copyProperty(width: Float): Eraser {
+            return copy(
+                width = width,
+            )
+        }
     }
 
     sealed class Draw : DrawProperty() {
 
         abstract val alpha: Float
 
-        abstract fun copyProperty(alpha: Float = this.alpha): Draw
+        abstract fun copyProperty(
+            alpha: Float = this.alpha,
+            width: Float = this.width,
+        ): Draw
 
         sealed class Line : Draw() {
 
             abstract val color: Color
-            abstract val width: Float
 
             abstract fun copyProperty(
                 alpha: Float = this.alpha,
@@ -63,9 +77,9 @@ sealed class DrawProperty {
                     )
                 }
 
-                override fun copyProperty(alpha: Float): Pencil {
+                override fun copyProperty(width: Float): Pencil {
                     return copy(
-                        alpha = alpha,
+                        width = width,
                     )
                 }
 
@@ -78,6 +92,16 @@ sealed class DrawProperty {
                         alpha = alpha,
                         color = color,
                         width = width,
+                    )
+                }
+
+                override fun copyProperty(
+                    alpha: Float,
+                    width: Float,
+                ): Draw {
+                    return copy(
+                        width = width,
+                        alpha = alpha,
                     )
                 }
             }
@@ -99,10 +123,9 @@ sealed class DrawProperty {
                     )
                 }
 
-                override fun copyProperty(alpha: Float): Brush {
+                override fun copyProperty(width: Float): Brush {
                     return this.copy(
-                        alpha = alpha,
-                        color = color,
+                        width = width,
                     )
                 }
 
@@ -114,6 +137,16 @@ sealed class DrawProperty {
                     return copy(
                         alpha = alpha,
                         color = color,
+                        width = width,
+                    )
+                }
+
+                override fun copyProperty(
+                    alpha: Float,
+                    width: Float,
+                ): Draw {
+                    return copy(
+                        alpha = alpha,
                         width = width,
                     )
                 }
