@@ -54,6 +54,22 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             is CanvasAction.DrawPropertyManage.SetColor -> onSetDrawPropertyColor(action.color)
             is CanvasAction.DrawPropertyManage.SetDrawProperty -> onSetDrawProperty(action.drawProperty)
+            is CanvasAction.DrawPropertyManage.SetStrokeWidth -> onSetStrokeWidth(action.width)
+        }
+    }
+
+    private fun onSetStrokeWidth(width: Float) {
+        val currentState = state.value
+        if (currentState !is CanvasState.Drawing) return
+        val newProperty = currentState.property.copyProperty(
+            width = width,
+        )
+
+        state.update {
+            currentState.copy(
+                property = newProperty,
+                dialogType = null,
+            )
         }
     }
 
@@ -68,12 +84,19 @@ class CanvasViewModel : ViewModel() {
     }
 
     private fun onSetDrawProperty(drawProperty: DrawProperty) {
-        state.update { currentState ->
-            if (currentState !is CanvasState.Drawing) return@update currentState
+        val currentState = state.value
+        if (currentState !is CanvasState.Drawing) return
 
-            currentState.copy(
-                property = drawProperty,
-            )
+        if (drawProperty::class == currentState.property::class) {
+            val dialogType = DialogType.StrokeWidth
+            val action = CanvasAction.Dialog.ShowDialog(dialogType)
+            action(action)
+        } else {
+            state.update {
+                currentState.copy(
+                    property = drawProperty,
+                )
+            }
         }
     }
 

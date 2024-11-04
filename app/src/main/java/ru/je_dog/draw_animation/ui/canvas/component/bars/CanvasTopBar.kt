@@ -101,7 +101,7 @@ private fun LayersManage(
         }
 
         IconButton(onClick = {
-            val dialogType = DialogType.ShowFrames
+            val dialogType = DialogType.Frames
             val action = CanvasAction.Dialog.ShowDialog(dialogType)
             onAction(action)
         }) {

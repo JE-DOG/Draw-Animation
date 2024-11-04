@@ -2,7 +2,9 @@ package ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog
 
 sealed class DialogType {
 
-    object ShowColors : DialogType()
+    object StrokeWidth: DialogType()
 
-    object ShowFrames : DialogType()
+    object Colors : DialogType()
+
+    object Frames : DialogType()
 }

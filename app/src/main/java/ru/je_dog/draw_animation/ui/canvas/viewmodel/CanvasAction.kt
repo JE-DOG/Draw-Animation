@@ -20,6 +20,10 @@ sealed interface CanvasAction {
             val drawProperty: DrawProperty,
         ) : DrawPropertyManage
 
+        data class SetStrokeWidth(
+            val width: Float,
+        ) : DrawPropertyManage
+
         data class SetColor(
             val color: Color,
         ) : DrawPropertyManage

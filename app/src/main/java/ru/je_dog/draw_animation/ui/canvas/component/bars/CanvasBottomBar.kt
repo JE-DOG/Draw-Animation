@@ -81,7 +81,7 @@ fun CanvasBottomBar(
 
         if (drawProperty !is DrawProperty.Draw.Line) return@Row
         IconButton(onClick = {
-            val dialogType = DialogType.ShowColors
+            val dialogType = DialogType.Colors
             val action = CanvasAction.Dialog.ShowDialog(dialogType)
             onAction(action)
         }) {
