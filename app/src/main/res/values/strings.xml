@@ -3,4 +3,8 @@
 
     <string name="canvas_dialog_frame">Frame %d</string>
     <string name="canvas_dialog_stroke_width_set_button">Set stroke width</string>
+    <string name="canvas_dialog_color_confirm_custom_color">Set color</string>
+    <string name="canvas_dialog_color_red_placeholder">Red</string>
+    <string name="canvas_dialog_color_blue_placeholder">Blue</string>
+    <string name="canvas_dialog_color_green_placeholder">Green</string>
 </resources>
