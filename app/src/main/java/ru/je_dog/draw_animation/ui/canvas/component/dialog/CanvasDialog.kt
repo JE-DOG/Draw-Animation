@@ -37,6 +37,12 @@ fun CanvasDialog(
                     onAction = onAction,
                 )
             }
+
+            DialogType.AnimationSpeed -> {
+                SetAnimationSpeed(
+                    onAction = onAction,
+                )
+            }
         }
     }
 }
