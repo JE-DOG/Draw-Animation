@@ -72,6 +72,7 @@ private fun DrawChangeManage(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun LayersManage(
     modifier: Modifier = Modifier,
@@ -80,11 +81,20 @@ private fun LayersManage(
     Row(
         modifier = modifier,
     ) {
-        IconButton(onClick = {
-            val action = CanvasAction.FramesManage.DeleteFrame
-            onAction(action)
-        }) {
+        IconButton(onClick = {}) {
             Icon(
+                modifier = Modifier
+                    .combinedClickable(
+                        true,
+                        onClick = {
+                            val action = CanvasAction.FramesManage.DeleteFrame
+                            onAction(action)
+                        },
+                        onLongClick = {
+                            val action = CanvasAction.FramesManage.DeleteAllFrames
+                            onAction(action)
+                        }
+                    ),
                 painter = painterResource(id = R.drawable.ic_bin),
                 tint = MaterialTheme.colorScheme.outline,
                 contentDescription = null,

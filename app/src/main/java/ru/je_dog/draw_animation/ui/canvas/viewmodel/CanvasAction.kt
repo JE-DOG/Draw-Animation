@@ -44,6 +44,8 @@ sealed interface CanvasAction {
 
         object DeleteFrame : FramesManage
 
+        object DeleteAllFrames : FramesManage
+
         class SetFrame(val frameIndex: Int) : FramesManage
     }
 
