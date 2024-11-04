@@ -15,6 +15,7 @@ import ru.je_dog.draw_animation.ui.canvas.model.Draw
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
 import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
+import ru.je_dog.draw_animation.ui.canvas.util.FrameHelper
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.dialog.DialogType
 import java.util.Stack
 
@@ -264,6 +265,25 @@ class CanvasViewModel : ViewModel() {
             CanvasAction.FramesManage.DeleteAllFrames -> onDeleteAllFrames()
             is CanvasAction.FramesManage.SetFrame -> onSetFrame(action.frameIndex)
             CanvasAction.FramesManage.CreateNewFrameByCopy -> onCreateNewFrameByCopy()
+            is CanvasAction.FramesManage.CreateRandomFrames -> onCreateNewRandomFrames(action.count)
+        }
+    }
+
+    private fun onCreateNewRandomFrames(count: Int) {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val newFrames = currentState.frames.toMutableList().apply {
+            repeat(count) {
+                val newFrame = FrameHelper.createRandomFrame()
+                add(newFrame)
+            }
+        }
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+                currentFrameIndex = newFrames.lastIndex,
+                dialogType = null,
+            )
         }
     }
 
