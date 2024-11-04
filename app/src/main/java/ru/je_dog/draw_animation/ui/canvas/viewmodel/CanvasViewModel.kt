@@ -261,7 +261,21 @@ class CanvasViewModel : ViewModel() {
         when(action) {
             CanvasAction.FramesManage.CreateNewFrame -> onCreateNewFrame()
             CanvasAction.FramesManage.DeleteFrame -> onDeleteFrame()
+            CanvasAction.FramesManage.DeleteAllFrames -> onDeleteAllFrames()
             is CanvasAction.FramesManage.SetFrame -> onSetFrame(action.frameIndex)
+        }
+    }
+
+    private fun onDeleteAllFrames() {
+        val currentState = state.value as? CanvasState.Drawing ?: return
+        val newFrames = listOf(Frame())
+        savedFramesDraws.clear()
+
+        state.update {
+            currentState.copy(
+                frames = newFrames,
+                currentFrameIndex = 0,
+            )
         }
     }
 
