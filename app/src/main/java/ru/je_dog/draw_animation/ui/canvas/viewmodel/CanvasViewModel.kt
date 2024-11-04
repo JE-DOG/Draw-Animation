@@ -1,5 +1,6 @@
 package ru.je_dog.draw_animation.ui.canvas.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -12,6 +13,7 @@ import kotlinx.coroutines.launch
 import ru.je_dog.draw_animation.core.ext.collection.popOrNull
 import ru.je_dog.draw_animation.ui.canvas.model.Draw
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
+import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 import ru.je_dog.draw_animation.ui.canvas.model.Frame
 import java.util.Stack
 
@@ -35,6 +37,34 @@ class CanvasViewModel : ViewModel() {
             is CanvasAction.FramesManage -> onFramesManageAction(action)
             is CanvasAction.DrawManage -> onDrawManageAction(action)
             is CanvasAction.Animation -> onAnimationAction(action)
+            is CanvasAction.DrawPropertyManage -> onDrawPropertyManageAction(action)
+        }
+    }
+
+    private fun onDrawPropertyManageAction(action: CanvasAction.DrawPropertyManage) {
+        when(action) {
+            is CanvasAction.DrawPropertyManage.SetColor -> onSetDrawPropertyColor(action.color)
+            is CanvasAction.DrawPropertyManage.SetDrawProperty -> onSetDrawProperty(action.drawProperty)
+        }
+    }
+
+    private fun onSetDrawProperty(drawProperty: DrawProperty) {
+        state.update { currentState ->
+            if (currentState !is CanvasState.Drawing) return@update currentState
+
+            currentState.copy(
+                property = drawProperty,
+            )
+        }
+    }
+
+    private fun onSetDrawPropertyColor(color: Color) {
+        state.update { currentState ->
+            if (currentState !is CanvasState.Drawing) return@update currentState
+
+            currentState.copy(
+                color = color,
+            )
         }
     }
 

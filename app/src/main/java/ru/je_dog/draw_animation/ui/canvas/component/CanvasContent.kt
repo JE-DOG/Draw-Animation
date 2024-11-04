@@ -33,7 +33,13 @@ fun CanvasContent(
             )
         },
         bottomBar = {
-            CanvasBottomBar()
+            CanvasBottomBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 20.dp),
+                state = state,
+                onAction = onAction,
+            )
         },
     ) { paddingValues ->
         Box(
@@ -46,8 +52,8 @@ fun CanvasContent(
                 state = state,
                 onAction = onAction,
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.extraLarge)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .clip(MaterialTheme.shapes.extraLarge),
             )
         }
     }

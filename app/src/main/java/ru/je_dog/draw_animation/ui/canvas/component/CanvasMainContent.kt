@@ -1,13 +1,14 @@
 package ru.je_dog.draw_animation.ui.canvas.component
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -20,87 +21,87 @@ import ru.je_dog.draw_animation.ui.canvas.util.DrawHelper
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasAction
 import ru.je_dog.draw_animation.ui.canvas.viewmodel.CanvasState
 
-private const val PREVIOUS_DRAW_ALPHA = 0.3F
-
 @Composable
 fun CanvasMainContent(
     state: CanvasState,
     modifier: Modifier = Modifier,
     onAction: (CanvasAction) -> Unit = {},
 ) {
-    BackgroundImage(
-        modifier = modifier
-            .fillMaxWidth()
-            .pointerInput(Unit) {
-                if (state !is CanvasState.Drawing) return@pointerInput
+    Box(
+        modifier = modifier,
+    ) {
+        BackgroundImage(
+            modifier = Modifier.fillMaxWidth(),
+        )
 
-                detectDragGestures(
-                    onDragStart = {
-                        val action = CanvasAction.Drawing.Started
+        Canvas(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
+                .pointerInput(Unit) {
+                    if (state !is CanvasState.Drawing) return@pointerInput
+
+                    detectDragGestures(
+                        onDragStart = {
+                            val action = CanvasAction.Drawing.Started
+                            onAction(action)
+                        },
+                        onDragEnd = {
+                            val action = CanvasAction.Drawing.Ended
+                            onAction(action)
+                        },
+                    ) { change, _ ->
+                        change.consume()
+                        val drawPoint = change.position.toDrawPoint()
+                        val action = CanvasAction.Drawing.NewPoint(drawPoint)
                         onAction(action)
-                    },
-                    onDragEnd = {
-                        val action = CanvasAction.Drawing.Ended
-                        onAction(action)
-                    },
-                ) { change, _ ->
-                    change.consume()
-                    val drawPoint = change.position.toDrawPoint()
-                    val action = CanvasAction.Drawing.NewPoint(drawPoint)
-                    onAction(action)
-                }
+                    }
+                },
+        ) {
+            val frame = state.frames[state.currentFrameIndex]
+            val drawPaths = DrawHelper.generateDrawPaths(frame.draws)
+            val previousFrame = if (state is CanvasState.Drawing) {
+                state.frames.getOrNull(state.currentFrameIndex - 1)
+            } else {
+                null
             }
-            .drawWithCache {
-                val stroke = Stroke(
-                    width = 10f,
+            val previousFrameDrawPaths = if (state is CanvasState.Drawing) {
+                DrawHelper.generateDrawPathsForPreviousFrame(previousFrame?.draws ?: emptyList())
+            } else {
+                null
+            }
+
+            previousFrameDrawPaths?.fastForEach { drawPath ->
+                drawPath.property.draw(
+                    path = drawPath.path,
+                    scope = this,
                 )
-                val frame = state.frames[state.currentFrameIndex]
-                val paths = DrawHelper.generatePaths(frame.draws)
-                val previousFrame = if (state is CanvasState.Drawing) {
-                    state.frames.getOrNull(state.currentFrameIndex - 1)
-                } else {
-                    null
-                }
-                val previousFramePaths = if (state is CanvasState.Drawing) {
-                    DrawHelper.generatePaths(previousFrame?.draws ?: emptyList())
-                } else {
-                    null
-                }
+            }
 
-                onDrawWithContent {
-                    drawContent()
-
-                    paths.fastForEach { path ->
-                        drawPath(
-                            path = path,
-                            style = stroke,
-                            color = Color.Red,
-                        )
-                    }
-
-                    previousFramePaths?.fastForEach { path ->
-                        drawPath(
-                            path = path,
-                            style = stroke,
-                            color = Color.Red,
-                            alpha = PREVIOUS_DRAW_ALPHA,
-                        )
-                    }
-                }
-            },
-    )
+            drawPaths.fastForEach { drawPath ->
+                drawPath.property.draw(
+                    path = drawPath.path,
+                    scope = this,
+                )
+            }
+        }
+    }
 }
 
 @Composable
 private fun BackgroundImage(
     modifier: Modifier = Modifier,
 ) {
-    Image(
+    Box(
         modifier = modifier,
-        painter = painterResource(id = R.drawable.img_canvas),
-        contentDescription = null,
-        contentScale = ContentScale.FillWidth,
-    )
+    ) {
+        Image(
+            modifier = Modifier.fillMaxWidth(),
+            painter = painterResource(id = R.drawable.img_canvas),
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+        )
+    }
 }
 
 //region Preview

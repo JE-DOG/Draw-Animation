@@ -1,8 +1,21 @@
 package ru.je_dog.draw_animation.ui.canvas.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import ru.je_dog.draw_animation.ui.canvas.model.DrawPoint
+import ru.je_dog.draw_animation.ui.canvas.model.DrawProperty
 
 sealed interface CanvasAction {
+
+    sealed interface DrawPropertyManage : CanvasAction {
+
+        data class SetDrawProperty(
+            val drawProperty: DrawProperty,
+        ) : DrawPropertyManage
+
+        data class SetColor(
+            val color: Color,
+        ) : DrawPropertyManage
+    }
 
     sealed interface Animation : CanvasAction {
 
